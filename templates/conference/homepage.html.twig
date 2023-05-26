@@ -6,9 +6,18 @@
 
 {% block body %}
     <div class="container">
+        {% if greet|length > 0 %}
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
+                    <h1 class="h1 text-center">
+                        {{ 'Hello, ' ~ greet }}
+                    </h1>
+                </div>
+            </div>
+        {% endif %}
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
-                <img src="/images/under-construction.gif"></div>
+                <img src="/images/under-construction.gif" />
             </div>
         </div>
     </div>
