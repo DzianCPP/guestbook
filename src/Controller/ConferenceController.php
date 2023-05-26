@@ -23,13 +23,16 @@ class ConferenceController extends AbstractController
     }
 
     #[Route(
-        path: '/',
+        path: '/hello/{name}',
         name: 'homepage',
-        methods: 'GET'
+        methods: 'GET',
+        requirements: [
+            'name' => '[a-zA-Z]+'
+        ]
     )]
-    public function index(): Response
+    public function index(string $name = ""): Response
     {
-        $greet = $this->setGreet($this->request);
+        $greet = $this->setGreet($this->request, $name);
         return $this->render('conference/homepage.html.twig', [
             'title' => 'Guestbook',
             'greet' => $greet
