@@ -36,7 +36,7 @@
 							<ul class="dropdown-menu">
 								{% for conference in conferences %}
 									<li>
-										<a class="dropdown-item" href="{{ path('conference', { id: conference.id }) }}">{{ conference }}</a>
+										<a class="dropdown-item" href="{{ path('conference', { slug: conference.slug }) }}">{{ conference }}</a>
 									</li>
 								{% endfor %}
 							</ul>

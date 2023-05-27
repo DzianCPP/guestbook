@@ -43,17 +43,14 @@ class ConferenceController extends AbstractController
     }
 
     #[Route(
-        path: '/conference/{id}',
+        path: '/conference/{slug}',
         name: 'conference',
-        methods: 'GET|HEAD',
-        requirements: [
-            'id' => '\d+'
-        ]
+        methods: 'GET|HEAD'
     )]
     public function show(
         Conference $conference,
         CommentRepository $commentRepository,
-        int $id = 1
+        string $slug = ''
     ): Response {
         $offset = max(0, $this->request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($conference, $offset);
