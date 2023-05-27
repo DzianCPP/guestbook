@@ -109,4 +109,11 @@ class Comment
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        $email = (string) $this->getEmail();
+
+        return $email;
+    }
 }

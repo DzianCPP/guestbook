@@ -17,7 +17,7 @@ class DashboardController extends AbstractDashboardController
     #[Route(
         path: '/admin',
         name: 'admin',
-        methods: 'GET',
+        methods: 'GET|POST'
     )]
     public function index(): Response
     {
