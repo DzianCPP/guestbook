@@ -17,6 +17,29 @@
 		{% endblock %}
 	</head>
 	<body>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#header-menu" aria-controls="header-menu" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="header-menu">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a href="{{ path('homepage') }}">Guestbook</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Dropdown
+						</a>
+						<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+							{% for conference in conferences %}
+								<a href="{{ path('conference', { id: conference.id }) }}">{{ conference }}</a>
+							{% endfor %}
+						</div>
+					</li>
+				</ul>
+			</div>
+		</nav>
 		{% block body %}{% endblock %}
 	</body>
 </html>
