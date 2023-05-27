@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Twig\Environment;
 
 use App\Repository\ConferenceRepository;
 use App\Repository\CommentRepository;
@@ -24,7 +23,6 @@ class ConferenceController extends AbstractController
 
     public function __construct(
         protected RequestStack $requestStack,
-        protected Environment $twig,
         protected ConferenceRepository $conferenceRepository,
         protected array $data = []
     ) {
@@ -41,14 +39,7 @@ class ConferenceController extends AbstractController
         $this->addItem('conferences', $this->conferenceRepository->findAll());
         $this->addItem('title', 'Conferences');
 
-        $response = new Response(
-            $this->twig->render(
-                'conference/homepage.html.twig',
-                $this->data
-            )
-        );
-
-        return $response;
+        return $this->render('conference/homepage.html.twig', $this->data);
     }
 
     #[Route(
@@ -72,6 +63,6 @@ class ConferenceController extends AbstractController
         $this->addItem('next', min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE));
         $this->addItem('title', 'Conference');
 
-        return new Response($this->twig->render('conference/show.html.twig', $this->data));
+        return $this->render('conference/show.html.twig', $this->data);
     }
 }
