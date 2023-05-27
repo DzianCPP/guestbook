@@ -14,15 +14,11 @@ use App\Entity\Comment;
 
 class DashboardController extends AbstractDashboardController
 {
-    #[Route(
-        path: '/admin',
-        name: 'admin',
-        methods: 'GET|POST'
-    )]
+    #[Route(path: '/admin', name: 'admin' )]
     public function index(): Response
     {
         $routeBuilder = $this->container->get(AdminUrlGenerator::class);
-        $url = $routeBuilder->setController(ConferenceCrudController::class)->generateurl();
+        $url = $routeBuilder->setController(ConferenceCrudController::class)->generateUrl();
 
         return $this->redirect($url);
     }
