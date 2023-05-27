@@ -45,11 +45,11 @@
                     </div>
                 {% endfor %}
 
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
+                <div class="row text-center">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xxl-4">
                         {% if previous >= 0 %}
                             <a class="btn btn-danger" href="{{ path('conference', { id: conference.id, offset: previous }) }}">
-                                {{ '<<PREVIOUS' }}
+                                {{ '<<' }}
                             </a>
                         {% endif %}
                         {% if next < comments|length %}

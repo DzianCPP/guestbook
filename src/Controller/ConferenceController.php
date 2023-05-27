@@ -69,7 +69,7 @@ class ConferenceController extends AbstractController
         $this->addItem('conference', $conference);
         $this->addItem('comments', $paginator);
         $this->addItem('previous', $offset - CommentRepository::PAGINATOR_PER_PAGE);
-        $this->addItem('next', max(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE));
+        $this->addItem('next', min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE));
         $this->addItem('title', 'Conference');
 
         return new Response($this->twig->render('conference/show.html.twig', $this->data));
