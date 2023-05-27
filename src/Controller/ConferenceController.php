@@ -7,35 +7,67 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Twig\Environment;
 
-use App\Traits\Greet;
+use App\Repository\ConferenceRepository;
+use App\Repository\CommentRepository;
+
+use App\Entity\Conference;
+
+use App\Traits\DataBuilder;
 
 class ConferenceController extends AbstractController
 {
-    use Greet;
+    use DataBuilder;
 
     private Request $request;
 
     public function __construct(
-        protected RequestStack $requestStack
+        protected RequestStack $requestStack,
+        protected Environment $twig,
+        protected ConferenceRepository $conferenceRepository,
+        protected array $data = []
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
 
     #[Route(
-        path: '/hello/{name}',
+        path: '/',
         name: 'homepage',
-        methods: 'GET',
+        methods: 'GET|HEAD'
+    )]
+    public function index(): Response
+    {
+        $this->addItem('conferences', $this->conferenceRepository->findAll());
+        $this->addItem('title', 'Conferences');
+
+        $response = new Response(
+            $this->twig->render(
+                'conference/homepage.html.twig',
+                $this->data
+            )
+        );
+
+        return $response;
+    }
+
+    #[Route(
+        path: '/conference/{id}',
+        name: 'conference',
+        methods: 'GET|HEAD',
         requirements: [
-            'name' => '[a-zA-Z]+'
+            'id' => '\d+'
         ]
     )]
-    public function index(string $name = ""): Response
-    {
-        $greet = $this->setGreet($this->request, $name);
-        return $this->render('conference/homepage.html.twig', [
-            'title' => 'Guestbook',
-            'greet' => $greet
-        ]);
+    public function show(
+        Conference $conference,
+        CommentRepository $commentRepository,
+        int $id = 1
+    ): Response {
+        $this->addItem('conference', $conference);
+        $this->addItem('comments', $commentRepository->findBy(['conference' => $conference], ['createdAt' => 'DESC']));
+        $this->addItem('title', 'Conference');
+        
+        return new Response($this->twig->render('conference/show.html.twig', $this->data));
     }
 }

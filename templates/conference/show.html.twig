@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
+                <h1 class="h1 text-center">
+                    {{ conference }}
+                    {{ ' Conference' }}
+                </h1>
+            </div>
+        </div>
+
+        {% if comments|length > 0 %}
+            {% for comment in comments %}
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xxl-4">
+                        <div class="card" style="width: 18rem;">
+                            {% if comment.photoFilename|length > 0 %}
+                                <img src="..." class="card-img-top" alt="...">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        {{ comment.author }}
+                                    </h5>
+                                    <p class="card-text">
+                                        {{ comment.text }}
+                                    </p>
+                                    <small>
+                                        {{ comment.createdAt|format_datetime('medium', 'short') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if comments|length < 1 %}
+                <div class="alert alert-warning" role="alert">
+                    {{ 'There are no conferences in the system' }}
+                </div>
+            {% endif %}
+        </div>
+    {% endblock %}
+    
