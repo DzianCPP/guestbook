@@ -15,12 +15,19 @@
         </div>
 
         {% if comments|length > 0 %}
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-1 col-xxl-12">
+                    <h5 class="h5 text-left">
+                        {{ 'There are ' ~ comments|length ~ ' comments.' }}
+                    </h5>
+                </div>
+            </div>
             {% for comment in comments %}
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xxl-4">
-                        <div class="card" style="width: 18rem;">
+                        <div class="card w-100 m-2" style="width: 18rem;">
                             {% if comment.photoFilename|length > 0 %}
-                                <img src="..." class="card-img-top" alt="...">
+                                <img src="{{ url(comment.fileName) }}" class="card-img-top" alt="{{ comment.author }}">
                                 {% endif %}
                                 <div class="card-body">
                                     <h5 class="card-title">
@@ -37,6 +44,21 @@
                         </div>
                     </div>
                 {% endfor %}
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
+                        {% if previous >= 0 %}
+                            <a class="btn btn-danger" href="{{ path('conference', { id: conference.id, offset: previous }) }}">
+                                {{ '<<PREVIOUS' }}
+                            </a>
+                        {% endif %}
+                        {% if next < comments|length %}
+                            <a class="btn btn-danger" href="{{ path('conference', { id: conference.id, offset: next }) }}">
+                                {{ '>>' }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
             {% endif %}
 
             {% if comments|length < 1 %}

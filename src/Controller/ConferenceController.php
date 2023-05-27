@@ -64,10 +64,14 @@ class ConferenceController extends AbstractController
         CommentRepository $commentRepository,
         int $id = 1
     ): Response {
+        $offset = max(0, $this->request->query->getInt('offset', 0));
+        $paginator = $commentRepository->getCommentPaginator($conference, $offset);
         $this->addItem('conference', $conference);
-        $this->addItem('comments', $commentRepository->findBy(['conference' => $conference], ['createdAt' => 'DESC']));
+        $this->addItem('comments', $paginator);
+        $this->addItem('previous', $offset - CommentRepository::PAGINATOR_PER_PAGE);
+        $this->addItem('next', max(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE));
         $this->addItem('title', 'Conference');
-        
+
         return new Response($this->twig->render('conference/show.html.twig', $this->data));
     }
 }
