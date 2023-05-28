@@ -16,6 +16,8 @@ use App\Repository\CommentRepository;
 use App\Entity\Conference;
 use App\Entity\Comment;
 
+use App\SpamChecker;
+
 use App\Form\CommentType;
 
 use App\Traits\DataBuilder;
@@ -56,8 +58,8 @@ class ConferenceController extends AbstractController
     public function show(
         Conference $conference,
         CommentRepository $commentRepository,
-        string $slug = '',
-    #[Autowire('%photo_dir%')] string $photo_dir): Response
+        SpamChecker $spamChecker,
+    #[Autowire('%photo_dir%')] string $photo_dir, string $slug = ''): Response
     {
         $offset = max(0, $this->request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($conference, $offset);
@@ -80,6 +82,11 @@ class ConferenceController extends AbstractController
                 $comment->setPhotoFilename($filename);
             }
             $this->entityManager->persist($comment);
+
+            if (!$this->checkForSpam($spamChecker, $comment)) {
+                throw new \RuntimeException("Spam!");
+            }
+
             $this->entityManager->flush();
 
             return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
@@ -88,5 +95,21 @@ class ConferenceController extends AbstractController
         $this->addItem('comment_form', $comment_form);
 
         return $this->render('conference/show.html.twig', $this->data);
+    }
+
+    private function checkForSpam(SpamChecker $spamChecker, Comment $comment): bool
+    {
+        $context = [
+            'user_ip' => $this->request->getClientIp(),
+            'user_agent' => $this->request->headers->get('user-agent'),
+            'referrer' => $this->request->headers->get('referrer'),
+            'permalink' => $this->request->getUri()
+        ];
+
+        if (in_array($spamChecker->getSpamScore($comment, $context), [1, 2])) {
+            return false;
+        }
+
+        return true;
     }
 }
