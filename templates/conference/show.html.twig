@@ -1,71 +1,81 @@
 {% extends 'base.html.twig' %}
 {% block title %}
-    {{ title }}
+	{{ title }}
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
-                <h1 class="h1 text-center">
-                    {{ conference }}
-                    {{ ' Conference' }}
-                </h1>
-            </div>
-        </div>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
+				<h1 class="h1 text-center">
+					{{ conference }}
+					{{ ' Conference' }}
+				</h1>
+			</div>
+		</div>
 
-        {% if comments|length > 0 %}
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-1 col-xxl-12">
-                    <h5 class="h5 text-left">
-                        {{ 'There are ' ~ comments|length ~ ' comments.' }}
-                    </h5>
-                </div>
-            </div>
-            {% for comment in comments %}
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xxl-4">
-                        <div class="card w-100 m-2" style="width: 18rem;">
-                            {% if comment.photoFilename|length > 0 %}
-                                <img src="{{ url(comment.fileName) }}" class="card-img-top" alt="{{ comment.author }}">
-                                {% endif %}
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        {{ comment.author }}
-                                    </h5>
-                                    <p class="card-text">
-                                        {{ comment.text }}
-                                    </p>
-                                    <small>
-                                        {{ comment.createdAt|format_datetime('medium', 'short') }}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+		{% if comments|length > 0 %}
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-1 col-xxl-12">
+					<h5 class="h5 text-left">
+						{{ 'There are ' ~ comments|length ~ ' comments.' }}
+					</h5>
+				</div>
+			</div>
+			{% for comment in comments %}
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xxl-4">
+						<div class="card w-100 m-2" style="width: 18rem;">
+							{% if comment.photoFilename|length > 0 %}
+								<img src="{{ '/uploads/photos/' ~ comment.photoFileName }}" class="card-img-top" alt="{{ comment.author }}">
+							{% endif %}
+							<div class="card-body">
+								<h5 class="card-title">
+									{{ comment.author }}
+								</h5>
+								<p class="card-text">
+									{{ comment.text }}
+								</p>
+								<small>
+									{{ comment.createdAt|format_datetime('medium', 'short') }}
+								</small>
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
 
-                <div class="row text-center">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xxl-4">
-                        {% if previous >= 0 %}
-                            <a class="btn btn-danger" href="{{ path('conference', { slug: conference.slug, offset: previous }) }}">
-                                {{ '<<' }}
-                            </a>
-                        {% endif %}
-                        {% if next < comments|length %}
-                            <a class="btn btn-danger" href="{{ path('conference', { slug: conference.slug, offset: next }) }}">
-                                {{ '>>' }}
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endif %}
+			<div class="row text-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xxl-4">
+					{% if previous >= 0 %}
+						<a class="btn btn-danger" href="{{ path('conference', { slug: conference.slug, offset: previous }) }}">
+							{{ '<<' }}
+						</a>
+					{% endif %}
+					{% if next < comments|length %}
+						<a class="btn btn-danger" href="{{ path('conference', { slug: conference.slug, offset: next }) }}">
+							{{ '>>' }}
+						</a>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
 
-            {% if comments|length < 1 %}
-                <div class="alert alert-warning" role="alert">
-                    {{ 'There are no conferences in the system' }}
-                </div>
-            {% endif %}
-        </div>
-    {% endblock %}
-    
+		{% if comments|length < 1 %}
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xxl-4">
+					<div class="alert alert-warning" role="alert">
+						{{ 'There are no conferences in the system' }}
+					</div>
+				</div>
+			</div>
+		{% endif %}
+
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xxl-4">
+				<h2 class="h2 text-center">{{ 'Add your feedback' }}</h2>
+				{{ form(comment_form) }}
+				</div>
+			</div>
+		</div>
+	{% endblock %}

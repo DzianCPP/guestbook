@@ -3,15 +3,20 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 use App\Repository\ConferenceRepository;
 use App\Repository\CommentRepository;
 
 use App\Entity\Conference;
+use App\Entity\Comment;
+
+use App\Form\CommentType;
 
 use App\Traits\DataBuilder;
 
@@ -24,6 +29,7 @@ class ConferenceController extends AbstractController
     public function __construct(
         protected RequestStack $requestStack,
         protected ConferenceRepository $conferenceRepository,
+        protected EntityManagerInterface $entityManager,
         protected array $data = []
     ) {
         $this->request = $requestStack->getCurrentRequest();
@@ -45,20 +51,41 @@ class ConferenceController extends AbstractController
     #[Route(
         path: '/conference/{slug}',
         name: 'conference',
-        methods: 'GET|HEAD'
+        methods: 'GET|HEAD|POST'
     )]
     public function show(
         Conference $conference,
         CommentRepository $commentRepository,
-        string $slug = ''
-    ): Response {
+        string $slug = '',
+    #[Autowire('%photo_dir%')] string $photo_dir): Response
+    {
         $offset = max(0, $this->request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($conference, $offset);
+
         $this->addItem('conference', $conference);
         $this->addItem('comments', $paginator);
         $this->addItem('previous', $offset - CommentRepository::PAGINATOR_PER_PAGE);
         $this->addItem('next', min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE));
         $this->addItem('title', 'Conference');
+
+        $comment = new Comment();
+        $comment_form = $this->createForm(CommentType::class, $comment);
+        $comment_form->handleRequest($this->request);
+
+        if ($comment_form->isSubmitted() && $comment_form->isValid()) {
+            $comment->setConference($conference);
+            if ($photo = $comment_form['photo']->getData()) {
+                $filename = bin2hex(random_bytes(6)) . '.' . $photo->guessExtension();
+                $photo->move($photo_dir, $filename);
+                $comment->setPhotoFilename($filename);
+            }
+            $this->entityManager->persist($comment);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
+        }
+
+        $this->addItem('comment_form', $comment_form);
 
         return $this->render('conference/show.html.twig', $this->data);
     }
