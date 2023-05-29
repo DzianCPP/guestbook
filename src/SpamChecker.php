@@ -13,7 +13,7 @@ class SpamChecker
         private HttpClientInterface $client,
     #[Autowire('%env(SPAM_API_KEY)%')] string $api_key)
     {
-        $this->endpoint = "https://${api_key}.rest.akismet.com/1.1/comment-check";
+        $this->endpoint = "https://{$api_key}.rest.akismet.com/1.1/comment-check";
     }
 
     public function getSpamScore(Comment $comment, array $context): int
