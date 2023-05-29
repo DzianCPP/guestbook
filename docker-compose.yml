@@ -3,7 +3,7 @@ version: '3'
 services:
 ###> doctrine/doctrine-bundle ###
   database:
-    image: postgres:${POSTGRES_VERSION:-15}-alpine
+    image: postgres:${POSTGRES_VERSION:-9.6}-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-guestbook}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
