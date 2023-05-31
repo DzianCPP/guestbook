@@ -36,6 +36,7 @@ class AppFixtures extends Fixture
         $minsk_comment->setAuthor('Frodo');
         $minsk_comment->setEmail('frodo@shire.com');
         $minsk_comment->setText('Amazing');
+        $minsk_comment->setState('published');
         $manager->persist($minsk_comment);
 
         $admin = new SuperAdmin();
