@@ -26,3 +26,8 @@
 ###> media ###
 /public/uploads
 ###< media ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
