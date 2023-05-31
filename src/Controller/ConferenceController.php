@@ -68,7 +68,7 @@ class ConferenceController extends AbstractController
         $this->addItem('comments', $paginator);
         $this->addItem('previous', $offset - CommentRepository::PAGINATOR_PER_PAGE);
         $this->addItem('next', min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE));
-        $this->addItem('title', 'Conference');
+        $this->addItem('title', "Conference - {$conference}");
 
         $comment = new Comment();
         $comment_form = $this->createForm(CommentType::class, $comment);
