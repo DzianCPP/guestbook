@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -14,19 +15,19 @@ use App\Entity\Comment;
 
 class DashboardController extends AbstractDashboardController
 {
-    #[Route(path: '/admin', name: 'admin' )]
-    public function index(): Response
+    #[Route(path: '/admin', name: 'admin')]
+    public function admin(): Response
     {
-        $routeBuilder = $this->container->get(AdminUrlGenerator::class);
-        $url = $routeBuilder->setController(ConferenceCrudController::class)->generateUrl();
-
-        return $this->redirect($url);
+        $urlGenerator = $this->container->get(AdminUrlGenerator::class);
+        
+        return $this->redirect($urlGenerator->setController(ConferenceCrudController::class)->generateUrl());
     }
 
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Guestbook');
+            ->setTitle('Guestbook')
+            ->renderContentMaximized();
     }
 
     public function configureMenuItems(): iterable

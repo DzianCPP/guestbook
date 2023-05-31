@@ -10,7 +10,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
                 {% if conferences|length > 0 %}
                     {% for conference in conferences %}
-                        <a class="btn btn-outline-success m-2 w-100" href="{{ path('conference', { slug: conference.slug }) }}">
+                        <a class="btn btn-outline-success mt-4 w-100 py-4 conference-btn" href="{{ path('conference', { slug: conference.slug }) }}">
                             {{ conference ~ ' Conference' }}
                         </a>
                     {% endfor %}

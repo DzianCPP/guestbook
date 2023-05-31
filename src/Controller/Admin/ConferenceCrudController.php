@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use App\Entity\Conference;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Route;
 
 class ConferenceCrudController extends AbstractCrudController
 {
