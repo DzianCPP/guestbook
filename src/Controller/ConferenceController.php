@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 use App\Repository\ConferenceRepository;
 use App\Repository\CommentRepository;
@@ -16,7 +17,7 @@ use App\Repository\CommentRepository;
 use App\Entity\Conference;
 use App\Entity\Comment;
 
-use App\SpamChecker;
+use App\Message\CommentMessage;
 
 use App\Form\CommentType;
 
@@ -32,6 +33,7 @@ class ConferenceController extends AbstractController
         protected RequestStack $requestStack,
         protected ConferenceRepository $conferenceRepository,
         protected EntityManagerInterface $entityManager,
+        private MessageBusInterface $bus,
         protected array $data = []
     ) {
         $this->request = $requestStack->getCurrentRequest();
@@ -58,7 +60,6 @@ class ConferenceController extends AbstractController
     public function show(
         Conference $conference,
         CommentRepository $commentRepository,
-        SpamChecker $spamChecker,
     #[Autowire('%photo_dir%')] string $photo_dir, string $slug = ''): Response
     {
         $offset = max(0, $this->request->query->getInt('offset', 0));
@@ -82,12 +83,7 @@ class ConferenceController extends AbstractController
                 $comment->setPhotoFilename($filename);
             }
             $this->entityManager->persist($comment);
-
-            if (!$this->checkForSpam($spamChecker, $comment)) {
-                throw new \RuntimeException("Spam!");
-            }
-
-            $this->entityManager->flush();
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $this->getContext()));
 
             return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
         }
@@ -97,19 +93,13 @@ class ConferenceController extends AbstractController
         return $this->render('conference/show.html.twig', $this->data);
     }
 
-    private function checkForSpam(SpamChecker $spamChecker, Comment $comment): bool
+    private function getContext(): array
     {
-        $context = [
+        return [
             'user_ip' => $this->request->getClientIp(),
             'user_agent' => $this->request->headers->get('user-agent'),
             'referrer' => $this->request->headers->get('referrer'),
             'permalink' => $this->request->getUri()
         ];
-
-        if (in_array($spamChecker->getSpamScore($comment, $context), [1, 2])) {
-            return false;
-        }
-
-        return true;
     }
 }
