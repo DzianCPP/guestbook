@@ -98,8 +98,7 @@ class ConferenceController extends AbstractController
 
     private function queueCommentMessage(Comment $comment): void
     {
-        $commentMessage = new CommentMessage($comment->getId(), $this->getContext());
-        $this->bus->dispatch($commentMessage);
+        $this->bus->dispatch(new CommentMessage($comment->getId(), $this->getContext()));
     }
 
     private function getContext(): array

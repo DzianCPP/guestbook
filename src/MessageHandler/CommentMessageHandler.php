@@ -37,4 +37,6 @@ class CommentMessageHandler
 
         $this->entityManager->flush();
     }
+
+    //TODO make it async! Visit config/bundles/messenger.yaml
 }
