@@ -82,8 +82,11 @@ class ConferenceController extends AbstractController
                 $photo->move($photo_dir, $filename);
                 $comment->setPhotoFilename($filename);
             }
+
             $this->entityManager->persist($comment);
-            $this->bus->dispatch(new CommentMessage($comment->getId(), $this->getContext()));
+            $this->entityManager->flush();
+
+            $this->queueCommentMessage($comment);
 
             return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
         }
@@ -91,6 +94,12 @@ class ConferenceController extends AbstractController
         $this->addItem('comment_form', $comment_form);
 
         return $this->render('conference/show.html.twig', $this->data);
+    }
+
+    private function queueCommentMessage(Comment $comment): void
+    {
+        $commentMessage = new CommentMessage($comment->getId(), $this->getContext());
+        $this->bus->dispatch($commentMessage);
     }
 
     private function getContext(): array

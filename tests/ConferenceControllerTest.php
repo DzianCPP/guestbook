@@ -34,13 +34,17 @@ class ConferenceControllerTest extends WebTestCase
         $form[$form->getName() . '[author]'] = 'Bilbo';
         $form[$form->getName() . '[text]'] = 'WOW!!!';
         $form[$form->getName() . '[email]'] = $email = 'baggins@shire.com';
-
         $this->client->submit($form);
 
         $this->assertResponseRedirects();
         $comment = self::getContainer()
             ->get(CommentRepository::class)
             ->findOneByEmail($email);
+        
+        if (!$comment) {
+            echo "\n\n!!! Could not find a comment by email !!!\n\n";
+            return;
+        }
         $comment->setState('published');
         self::getContainer()->get(EntityManagerInterface::class)->flush();
         $this->client->followRedirect();

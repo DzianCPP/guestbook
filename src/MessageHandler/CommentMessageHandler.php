@@ -17,19 +17,21 @@ class CommentMessageHandler
         private CommentRepository $commentRepository,
         private SpamChecker $spamChecker
     ) {
-
     }
 
     public function __invoke(CommentMessage $message)
     {
-        $comment = $this->commentRepository->find($message->getId());
-        if (!$comment) {
+        if (!$comment = $this->commentRepository->find($message->getCommentId())) {
             return;
         }
 
-        if ($this->spamChecker->getSpamScore($comment, $message->getContext()) === 2) {
+        $spamScore = $this->spamChecker->getSpamScore($comment, $message->getContext());
+
+        if ($spamScore === 2) {
             $comment->setState('spam');
-        } else {
+        }
+
+        if ($spamScore !== 2) {
             $comment->setState('published');
         }
 

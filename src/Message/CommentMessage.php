@@ -5,14 +5,14 @@ namespace App\Message;
 class CommentMessage
 {
     public function __construct(
-        private int $id,
+        private int $comment_id,
         private array $context = []
     ) {
     }
 
-    public function getId(): int
+    public function getCommentId(): int
     {
-        return $this->id;
+        return $this->comment_id;
     }
 
     public function getContext(): array
