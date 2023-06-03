@@ -8,3 +8,20 @@ tests:
 	php bin/phpunit $@
 
 .PHONY: tests
+
+launch:
+	docker compose unpause
+	symfony server:start -d
+
+.PHONY: launch
+
+stop:
+	docker compose pause
+	symfony server:stop
+
+.PHONY: stop
+
+up:
+	docker compose up -d
+
+.PHONY: up
