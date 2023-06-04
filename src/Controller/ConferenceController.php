@@ -93,7 +93,7 @@ class ConferenceController extends AbstractController
 
         $this->addItem('comment_form', $comment_form);
 
-        return $this->render('conference/show.html.twig', $this->data);
+        return $this->render('confe rence/show.html.twig', $this->data);
     }
 
     private function queueCommentMessage(Comment $comment): void
