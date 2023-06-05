@@ -10,6 +10,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
+use Symfony\Bridge\Twig\Mime\NotificationEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Mailer\MailerInterface;
 
 use Psr\Log\LoggerInterface;
 
@@ -22,8 +25,10 @@ class CommentMessageHandler
         private SpamChecker $spamChecker,
         private MessageBusInterface $bus,
         private WorkflowInterface $commentStateMachine,
-        private ?LoggerInterface $logger = null
-    ) {
+        private ?LoggerInterface $logger = null,
+        private MailerInterface $mailer,
+    #[Autowire('%admin_email%')] private string $admin_email)
+    {
     }
 
     public function __invoke(CommentMessage $message)
@@ -46,7 +51,7 @@ class CommentMessageHandler
         }
 
         if ($this->commentStateMachineCan($comment, ['publish', 'publish_ham'])) {
-            $this->commentStateMachine->apply($comment, $this->getStateToApply($comment));
+            $this->sendNotificationEmail($comment);
         } elseif ($this->logger) {
             $this->logger->debug(
                 'Dropping comment message',
@@ -58,9 +63,16 @@ class CommentMessageHandler
         }
     }
 
-    private function getStateToApply(object $comment): string
+    private function sendNotificationEmail(object $comment): void
     {
-        return $this->commentStateMachine->can($comment, 'publish') ? 'publish' : 'publish_ham';
+        $notificationEmail = (new NotificationEmail())
+            ->subject('New comment')
+            ->htmlTemplate('emails/comment_notification.html.twig')
+            ->from($this->admin_email)
+            ->to($this->admin_email)
+            ->context($comment->getContext());
+
+        $this->mailer->send($notificationEmail);
     }
 
     private function commentStateMachineCan(object $comment, array $states): bool
