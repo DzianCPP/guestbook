@@ -49,7 +49,13 @@ class CommentMessageHandler
         ) {
             $this->commentStateMachine->apply($comment, $this->getStateToApply($comment));
         } elseif ($this->logger) {
-            $this->logger->debug('Dropping comment message', ['comment' => $comment->getId(), 'state' => $comment->getState()]);
+            $this->logger->debug(
+                'Dropping comment message',
+                [
+                    'comment' => $comment->getId(),
+                    'state' => $comment->getState()
+                ]
+            );
         }
     }
 
