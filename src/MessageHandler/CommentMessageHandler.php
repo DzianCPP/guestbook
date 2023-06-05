@@ -43,10 +43,12 @@ class CommentMessageHandler
             $this->commentStateMachine->apply($comment, $transition);
             $this->entityManager->flush();
             $this->bus->dispatch($message);
-        } elseif($this->commentStateMachine->can($comment, 'publish') || $this->commentStateMachine->can($comment, 'publish_ham')) {
+        } elseif (
+            $this->commentStateMachine->can($comment, 'publish') ||
+            $this->commentStateMachine->can($comment, 'publish_ham')
+        ) {
             $this->commentStateMachine->apply($comment, $this->getStateToApply($comment));
-        }
-        elseif ($this->logger) {
+        } elseif ($this->logger) {
             $this->logger->debug('Dropping comment message', ['comment' => $comment->getId(), 'state' => $comment->getState()]);
         }
     }
