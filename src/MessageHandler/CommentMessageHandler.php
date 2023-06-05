@@ -32,7 +32,7 @@ class CommentMessageHandler
             return;
         }
 
-        if ($this->commentStateMachine->can($comment, 'accept')) {
+        if ($this->commentStateMachineCan($comment, ['accept'])) {
             $score = $this->spamChecker->getSpamScore($comment, $message->getContext());
             $transition = match ($score) {
                 2 => 'reject_spam',
@@ -43,10 +43,9 @@ class CommentMessageHandler
             $this->commentStateMachine->apply($comment, $transition);
             $this->entityManager->flush();
             $this->bus->dispatch($message);
-        } elseif (
-            $this->commentStateMachine->can($comment, 'publish') ||
-            $this->commentStateMachine->can($comment, 'publish_ham')
-        ) {
+        }
+
+        if ($this->commentStateMachineCan($comment, ['publish', 'publish_ham'])) {
             $this->commentStateMachine->apply($comment, $this->getStateToApply($comment));
         } elseif ($this->logger) {
             $this->logger->debug(
@@ -59,9 +58,20 @@ class CommentMessageHandler
         }
     }
 
-    private function getStateToApply(mixed $comment): string
+    private function getStateToApply(object $comment): string
     {
         return $this->commentStateMachine->can($comment, 'publish') ? 'publish' : 'publish_ham';
+    }
+
+    private function commentStateMachineCan(object $comment, array $states): bool
+    {
+        foreach ($states as $state) {
+            if ($this->commentStateMachine->can($comment, $state)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //TODO make it async! Visit config/bundles/messenger.yaml
