@@ -11,4 +11,11 @@ trait DataBuilder
     {
         $this->data[$key] = $value;
     }
+
+    private function addItems(array $keys_values = []): void
+    {
+        foreach ($keys_values as $key => $value) {
+            $this->addItem($key, $value);
+        }
+    }
 }
