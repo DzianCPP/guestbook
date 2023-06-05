@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+<div>
+
+	{% block content %}
+		<div>
+			<div>
+				<div>
+					Author:
+					{{ comment.author }}
+				</div>
+				<div>
+					Email:
+					{{ comment.email }}
+				</div>
+				<div>
+					State:
+					{{ comment.state }}
+				</div>
+
+				<p>
+					{{ comment.text }}
+				</p>
+			</div>
+		</div>
+	{% endblock %}
+
+	{% block action %}
+		<div>
+			<div>
+				<div>
+					<button href="{{ url('review_comment', { id: comment.id }) }}">
+						Accept
+					</button>
+					<button href="{{ url('review_comment', { id: comment.id, reject: true }) }}">
+						Reject
+					</button>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+</div>
