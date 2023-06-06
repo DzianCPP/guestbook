@@ -9,19 +9,37 @@ tests:
 
 .PHONY: tests
 
-launch:
-	docker compose unpause
+start:
+	docker compose start
 	symfony server:start -d
 
-.PHONY: launch
+.PHONY: start
 
 stop:
-	docker compose pause
+	docker compose stop
 	symfony server:stop
 
 .PHONY: stop
 
 up:
 	docker compose up -d
+	symfony server:start -d
 
 .PHONY: up
+
+down:
+	docker compose down
+	symfony server:stop
+
+.PHONY: down
+
+up-build:
+	docker compose up -d --build
+	symfony server:start -d
+
+.PHONY: up-build
+
+migrate:
+	symfony console doctrine:migrations:migrate
+
+.PHONY: migrate
