@@ -32,7 +32,7 @@ class AdminController extends AbstractController
 
     #[Route(
         path: '/admin/comment/review/{id}',
-        name: 'app_admin',
+        name: 'review_comment',
         methods: 'GET|HEAD'
     )]
     public function review_comment(

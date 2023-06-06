@@ -25,9 +25,8 @@ class CommentMessageHandler
         private SpamChecker $spamChecker,
         private MessageBusInterface $bus,
         private WorkflowInterface $commentStateMachine,
-        private ?LoggerInterface $logger = null,
         private MailerInterface $mailer,
-    #[Autowire('%admin_email%')] private string $admin_email)
+    #[Autowire('%admin_email%')] private string $admin_email, private ?LoggerInterface $logger = null)
     {
     }
 
@@ -48,10 +47,15 @@ class CommentMessageHandler
             $this->commentStateMachine->apply($comment, $transition);
             $this->entityManager->flush();
             $this->bus->dispatch($message);
-        }
-
-        if ($this->commentStateMachineCan($comment, ['publish', 'publish_ham'])) {
-            $this->sendNotificationEmail($comment);
+        } elseif ($this->commentStateMachineCan($comment, ['publish', 'publish_ham'])) {
+            $this->logger->debug("\n\n\nSending email: $this->admin_email\n\n\n");
+            $this->mailer->send((new NotificationEmail())
+                ->subject('New comment')
+                ->htmlTemplate('emails/comment_notification.html.twig')
+                ->from($this->admin_email)
+                ->to($this->admin_email)
+                ->context(['comment' => $comment]));
+            $this->logger->debug("\n\n\nSent email\n\n\n");
         } elseif ($this->logger) {
             $this->logger->debug(
                 'Dropping comment message',
@@ -61,18 +65,6 @@ class CommentMessageHandler
                 ]
             );
         }
-    }
-
-    private function sendNotificationEmail(object $comment): void
-    {
-        $notificationEmail = (new NotificationEmail())
-            ->subject('New comment')
-            ->htmlTemplate('emails/comment_notification.html.twig')
-            ->from($this->admin_email)
-            ->to($this->admin_email)
-            ->context($comment->getContext());
-
-        $this->mailer->send($notificationEmail);
     }
 
     private function commentStateMachineCan(object $comment, array $states): bool

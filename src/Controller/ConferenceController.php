@@ -65,11 +65,13 @@ class ConferenceController extends AbstractController
         $offset = max(0, $this->request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($conference, $offset);
 
-        $this->addItem('conference', $conference);
-        $this->addItem('comments', $paginator);
-        $this->addItem('previous', $offset - CommentRepository::PAGINATOR_PER_PAGE);
-        $this->addItem('next', min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE));
-        $this->addItem('title', "Conference - {$conference}");
+        $this->addItems([
+            'conference' => $conference,
+            'comments' => $paginator,
+            'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
+            'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+            'title' => "Conference - {$conference}"
+        ]);
 
         $comment = new Comment();
         $comment_form = $this->createForm(CommentType::class, $comment);
@@ -86,19 +88,15 @@ class ConferenceController extends AbstractController
             $this->entityManager->persist($comment);
             $this->entityManager->flush();
 
-            $this->queueCommentMessage($comment);
+            $context = $this->getContext();
 
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
             return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
         }
 
         $this->addItem('comment_form', $comment_form);
 
         return $this->render('conference/show.html.twig', $this->data);
-    }
-
-    private function queueCommentMessage(Comment $comment): void
-    {
-        $this->bus->dispatch(new CommentMessage($comment->getId(), $this->getContext()));
     }
 
     private function getContext(): array
