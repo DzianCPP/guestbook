@@ -23,6 +23,8 @@ final class Version20230528073915 extends AbstractMigration
         $this->addSql('CREATE SEQUENCE super_admin_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE TABLE super_admin (id INT NOT NULL, username VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_BC8C2783F85E0677 ON super_admin (username)');
+        $add_admin = "INSERT INTO super_admin (id, username, roles, password) VALUES (nextval('super_admin_id_seq'), 'admin', '[\"ROLE_ADMIN\"]', '\$argon2id\$v=19\$m=65536,t=4,p=1\$BQG+jovPcunctc30xG5PxQ\$TiGbx451NKdo+g9vLtfkMy4KjASKSOcnNxjij4gTX1s')";
+        $this->addSql($add_admin);
     }
 
     public function down(Schema $schema): void

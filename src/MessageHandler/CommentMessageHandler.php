@@ -10,6 +10,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
+use Symfony\Bridge\Twig\Mime\NotificationEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Mailer\MailerInterface;
 
 use Psr\Log\LoggerInterface;
 
@@ -22,8 +25,9 @@ class CommentMessageHandler
         private SpamChecker $spamChecker,
         private MessageBusInterface $bus,
         private WorkflowInterface $commentStateMachine,
-        private ?LoggerInterface $logger = null
-    ) {
+        private MailerInterface $mailer,
+    #[Autowire('%admin_email%')] private string $admin_email, private ?LoggerInterface $logger = null)
+    {
     }
 
     public function __invoke(CommentMessage $message)
@@ -32,7 +36,7 @@ class CommentMessageHandler
             return;
         }
 
-        if ($this->commentStateMachine->can($comment, 'accept')) {
+        if ($this->commentStateMachineCan($comment, ['accept'])) {
             $score = $this->spamChecker->getSpamScore($comment, $message->getContext());
             $transition = match ($score) {
                 2 => 'reject_spam',
@@ -43,19 +47,37 @@ class CommentMessageHandler
             $this->commentStateMachine->apply($comment, $transition);
             $this->entityManager->flush();
             $this->bus->dispatch($message);
-        } elseif (
-            $this->commentStateMachine->can($comment, 'publish') ||
-            $this->commentStateMachine->can($comment, 'publish_ham')
-        ) {
-            $this->commentStateMachine->apply($comment, $this->getStateToApply($comment));
+        } elseif ($this->commentStateMachineCan($comment, ['publish', 'publish_ham'])) {
+            $this->logger->debug("\n\n\nSending email: $this->admin_email\n\n\n");
+            $email = (new NotificationEmail())
+                ->subject('New comment')
+                ->htmlTemplate('emails/comment_notification.html.twig')
+                ->from($this->admin_email)
+                ->to($this->admin_email)
+                ->context(['comment' => $comment]);
+
+            $this->mailer->send($email);
+            $this->logger->debug("\n\n\nSent email\n\n\n");
         } elseif ($this->logger) {
-            $this->logger->debug('Dropping comment message', ['comment' => $comment->getId(), 'state' => $comment->getState()]);
+            $this->logger->debug(
+                'Dropping comment message',
+                [
+                    'comment' => $comment->getId(),
+                    'state' => $comment->getState()
+                ]
+            );
         }
     }
 
-    private function getStateToApply(mixed $comment): string
+    private function commentStateMachineCan(object $comment, array $states): bool
     {
-        return $this->commentStateMachine->can($comment, 'publish') ? 'publish' : 'publish_ham';
+        foreach ($states as $state) {
+            if ($this->commentStateMachine->can($comment, $state)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //TODO make it async! Visit config/bundles/messenger.yaml
