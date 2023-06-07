@@ -51,5 +51,11 @@ services:
   cache:
     image: redis:6.0
 
+  mailer:
+    image: schickling/mailcatcher
+    ports:
+      - "1025:1025"
+      - "8001:1080"
+
 volumes:
   postgres_data:
