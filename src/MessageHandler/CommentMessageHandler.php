@@ -49,12 +49,14 @@ class CommentMessageHandler
             $this->bus->dispatch($message);
         } elseif ($this->commentStateMachineCan($comment, ['publish', 'publish_ham'])) {
             $this->logger->debug("\n\n\nSending email: $this->admin_email\n\n\n");
-            $this->mailer->send((new NotificationEmail())
+            $email = (new NotificationEmail())
                 ->subject('New comment')
                 ->htmlTemplate('emails/comment_notification.html.twig')
                 ->from($this->admin_email)
                 ->to($this->admin_email)
-                ->context(['comment' => $comment]));
+                ->context(['comment' => $comment]);
+
+            $this->mailer->send($email);
             $this->logger->debug("\n\n\nSent email\n\n\n");
         } elseif ($this->logger) {
             $this->logger->debug(

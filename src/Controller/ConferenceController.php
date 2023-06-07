@@ -46,8 +46,11 @@ class ConferenceController extends AbstractController
     )]
     public function index(): Response
     {
-        $this->addItem('conferences', $this->conferenceRepository->findAll());
-        $this->addItem('title', 'Conferences');
+        $this->addItems([
+            'conferences' => $this->conferenceRepository->findAll(),
+            'title' => 'Conferences',
+            'mailer_dsn' => $this->getParameter('mailer_dsn')
+        ]);
 
         return $this->render('conference/homepage.html.twig', $this->data);
     }
@@ -70,7 +73,8 @@ class ConferenceController extends AbstractController
             'comments' => $paginator,
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
             'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
-            'title' => "Conference - {$conference}"
+            'title' => "Conference - {$conference}",
+            'mailer_dsn' => $this->getParameter('mailer_dsn')
         ]);
 
         $comment = new Comment();
