@@ -51,7 +51,7 @@ class ConferenceController extends AbstractController
             'title' => 'Conferences'
         ]);
 
-        return $this->render('conference/homepage.html.twig', $this->data);
+        return $this->render('conference/homepage.html.twig', $this->data)->setSharedMaxAge(3600);
     }
 
     #[Route(
