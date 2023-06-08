@@ -46,10 +46,7 @@ class ConferenceController extends AbstractController
     )]
     public function index(): Response
     {
-        $this->addItems([
-            'conferences' => $this->conferenceRepository->findAll(),
-            'title' => 'Conferences'
-        ]);
+        $this->addItem('title', 'Conferences');
 
         return $this->render('conference/homepage.html.twig', $this->data)->setSharedMaxAge(3600);
     }
