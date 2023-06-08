@@ -110,4 +110,15 @@ class ConferenceController extends AbstractController
             'permalink' => $this->request->getUri()
         ];
     }
+
+    #[Route(
+        path: '/conference_header',
+        name: 'conference_header',
+        methods: 'GET|HEAD'
+    )]
+    public function conferenceHeader(): Response
+    {
+        $this->addItem('conferences', $this->conferenceRepository->findAll());
+        return $this->render('conference/header.html.twig', $this->data);
+    }
 }
