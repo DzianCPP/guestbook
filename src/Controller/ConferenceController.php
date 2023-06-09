@@ -46,7 +46,10 @@ class ConferenceController extends AbstractController
     )]
     public function index(): Response
     {
-        $this->addItem('title', 'Conferences');
+        $this->addItems([
+            'title' => 'Conferences',
+            'conferences' => $this->conferenceRepository->findAll()
+        ]);
 
         return $this->render('conference/homepage.html.twig', $this->data)->setSharedMaxAge(3600);
     }
@@ -69,7 +72,8 @@ class ConferenceController extends AbstractController
             'comments' => $paginator,
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
             'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
-            'title' => "Conference - {$conference}"
+            'title' => "Conference - {$conference}",
+            'conferences' => $this->conferenceRepository->findAll()
         ]);
 
         $comment = new Comment();
