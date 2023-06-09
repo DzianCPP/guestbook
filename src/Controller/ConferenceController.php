@@ -47,12 +47,11 @@ class ConferenceController extends AbstractController
     public function index(): Response
     {
         $this->addItems([
-            'conferences' => $this->conferenceRepository->findAll(),
             'title' => 'Conferences',
-            'mailer_dsn' => $this->getParameter('mailer_dsn')
+            'conferences' => $this->conferenceRepository->findAll()
         ]);
 
-        return $this->render('conference/homepage.html.twig', $this->data);
+        return $this->render('conference/homepage.html.twig', $this->data)->setSharedMaxAge(3600);
     }
 
     #[Route(
@@ -74,7 +73,7 @@ class ConferenceController extends AbstractController
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
             'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
             'title' => "Conference - {$conference}",
-            'mailer_dsn' => $this->getParameter('mailer_dsn')
+            'conferences' => $this->conferenceRepository->findAll()
         ]);
 
         $comment = new Comment();
@@ -111,5 +110,17 @@ class ConferenceController extends AbstractController
             'referrer' => $this->request->headers->get('referrer'),
             'permalink' => $this->request->getUri()
         ];
+    }
+
+    #[Route(
+        path: '/conference_header',
+        name: 'conference_header',
+        methods: 'GET|HEAD'
+    )]
+    public function conferenceHeader(): Response
+    {
+        $this->addItem('conferences', $this->conferenceRepository->findAll());
+        
+        return $this->render('conference/header.html.twig', $this->data)->setSharedMaxAge(3600);
     }
 }
