@@ -1,0 +1,10 @@
+{% if conferences|length > 0 %}
+	{% for conference in conferences %}
+		<a class="btn btn-outline-success mt-4 w-100 py-4 conference-btn" href="{{ path('conference', { slug: conference.slug }) }}">
+			{{ conference ~ ' Conference' }}
+		</a>
+	{% endfor %}
+{% endif %}
+{% if conferences|length == 0 %}
+	<h1 class="h1 text-center">No conferences</h1>
+{% endif %}
