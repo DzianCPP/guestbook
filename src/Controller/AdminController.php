@@ -19,7 +19,6 @@ use Doctrine\ORM\EntityManagerInterface;
 
 use Twig\Environment;
 
-#[Route('/admin')]
 class AdminController extends AbstractController
 {
     use DataBuilder;
@@ -37,7 +36,7 @@ class AdminController extends AbstractController
     }
 
     #[Route(
-        path: '/comment/review/{id}',
+        path: '/admin/comment/review/{id}',
         name: 'review_comment',
         methods: 'GET|HEAD'
     )]
@@ -62,7 +61,7 @@ class AdminController extends AbstractController
         return $this->render('admin/review.html.twig', $this->data);
     }
 
-    #[Route('/http-cache/{uri<.*>}', methods: ['PURGE'])]
+    #[Route('/admin/http-cache/{uri<.*>}', methods: ['PURGE'])]
     public function purgeHttpCache(
         KernelInterface $kernel,
         StoreInterface $store,
