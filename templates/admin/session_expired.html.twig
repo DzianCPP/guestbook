@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12">
+            <h1 class="h1">
+                {{ session_expired_message }}
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xxl-12 text-center mt-5">
+            <a class="btn btn-warning" href="{{ url('app_login') }}">Re-login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
