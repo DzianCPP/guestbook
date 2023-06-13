@@ -22,10 +22,12 @@ use App\Message\CommentMessage;
 use App\Form\CommentType;
 
 use App\Traits\DataBuilder;
+use App\Traits\SessionBuilder;
 
 class ConferenceController extends AbstractController
 {
     use DataBuilder;
+    use SessionBuilder;
 
     private Request $request;
 
@@ -51,7 +53,7 @@ class ConferenceController extends AbstractController
             'conferences' => $this->conferenceRepository->findAll()
         ]);
 
-        return $this->render('conference/homepage.html.twig', $this->data)->setSharedMaxAge(3600);
+        return $this->render('conference/homepage.html.twig', $this->data)->setSharedMaxAge(60);
     }
 
     #[Route(
@@ -120,7 +122,7 @@ class ConferenceController extends AbstractController
     public function conferenceHeader(): Response
     {
         $this->addItem('conferences', $this->conferenceRepository->findAll());
-        
+
         return $this->render('conference/header.html.twig', $this->data)->setSharedMaxAge(3600);
     }
 }

@@ -61,19 +61,26 @@ class AdminController extends AbstractController
         return $this->render('admin/review.html.twig', $this->data);
     }
 
-    #[Route('/admin/http-cache/{uri<.*>}', methods: ['PURGE'])]
+    #[Route('/admin/http-cache/{uri<.*>}', methods: 'PURGE')]
     public function purgeHttpCache(
         KernelInterface $kernel,
         StoreInterface $store,
-        string $uri
+        string $uri = ''
     ): Response {
         if ($kernel->getEnvironment() === 'prod') {
-            return new Response('KO', 400);
+            return $this->createResponse(
+                status: 400,
+                content: 'NO'
+            );
         }
 
         $store->purge($this->request->getSchemeAndHttpHost() . '/' . $uri);
 
-        return new Response('Done');
+        return $this->createResponse(
+            headers: ['result' => 'done'],
+            content: 'done',
+            status: 200
+        );
     }
 
     private function getTransition(
@@ -90,5 +97,15 @@ class AdminController extends AbstractController
         }
 
         return false;
+    }
+
+    private function createResponse(array $headers = [], string $content = '', int $status = 200): Response
+    {
+        $response = new Response();
+        $response->headers->add($headers);
+        $response->setContent($content);
+        $response->setStatusCode($status);
+
+        return $response;
     }
 }
