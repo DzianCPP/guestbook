@@ -46,5 +46,18 @@
 			</div>
 		</nav>
 		{% block body %}{% endblock %}
+		{% block flashes %}
+			<div class="container">
+				{% for message in app.flashes('comment_notification') %}
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xxl-4">
+							<h5 class="alert">
+								{{ message }}
+							</h5>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		{% endblock %}
 	</body>
 </html>

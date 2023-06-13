@@ -93,8 +93,8 @@ class ConferenceController extends AbstractController
             $this->entityManager->persist($comment);
             $this->entityManager->flush();
 
+            $this->addFlash('comment_notification', 'Your comment is being moderated');
             $context = $this->getContext();
-
             $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
             return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
         }
